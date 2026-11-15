@@ -400,21 +400,22 @@ text(lucky.number,luckyNumberLabelX+40,luckyRowY,60,10,luckyInk,true);
 
 // 进度至宜忌区域统一上移，小人和进度线保持相对位置。
 const calendarOffsetY=-8;
+const progressDateOffsetY=calendarOffsetY-3;
 const dashCount=47;
 const dashWidth=4.5;
 const dashHeight=1.25;
-for(let i=0;i<dashCount;i++)rect(10+i*(340-dashWidth)/(dashCount-1),110+calendarOffsetY+(2.5-dashHeight)/2,dashWidth,dashHeight,i/dashCount<eve.percent/100?luckyPaletteValues[i%luckyPaletteValues.length]:uiBar,dashHeight/2);
+for(let i=0;i<dashCount;i++)rect(10+i*(340-dashWidth)/(dashCount-1),110+progressDateOffsetY+(2.5-dashHeight)/2,dashWidth,dashHeight,i/dashCount<eve.percent/100?luckyPaletteValues[i%luckyPaletteValues.length]:uiBar,dashHeight/2);
 const runnerX=10+Math.min(.96,Math.max(.02,eve.percent/100))*340;
 // 小人朝右，并跟随幸运色。
-drawRunner(runnerX-8,90+calendarOffsetY,luckyInk);
-text('奔向团圆 · '+Math.round(eve.percent)+'%',10,116+calendarOffsetY,120,9,muted);
-if(eve.days===0){text('今天是除夕',244,116+calendarOffsetY,106,9,luckyInk,false,'right')}else{const size=9,prefix='距除夕',number=String(eve.days),unitX=341,numberX=unitX-3-textWidth(number,size),labelWidth=textWidth(prefix,size);text(prefix,numberX-4-labelWidth,116+calendarOffsetY,labelWidth+1,size,muted);luckyNumberText(number,numberX,116+calendarOffsetY,size);text('天',unitX,116+calendarOffsetY,9,size,muted,false,'right')}
+drawRunner(runnerX-8,90+progressDateOffsetY,luckyInk);
+text('奔向团圆 · '+Math.round(eve.percent)+'%',10,116+progressDateOffsetY,120,9,muted);
+if(eve.days===0){text('今天是除夕',244,116+progressDateOffsetY,106,9,luckyInk,false,'right')}else{const size=9,prefix='距除夕',number=String(eve.days),unitX=341,numberX=unitX-3-textWidth(number,size),labelWidth=textWidth(prefix,size);text(prefix,numberX-4-labelWidth,116+progressDateOffsetY,labelWidth+1,size,muted);luckyNumberText(number,numberX,116+progressDateOffsetY,size);text('天',unitX,116+progressDateOffsetY,9,size,muted,false,'right')}
 
 // 日期与时辰：主要日期突出，次要信息使用统一字色。
-text(String(day),10,137+calendarOffsetY,65,43,ink);rect(76,143+calendarOffsetY,1,34,uiDivider,0,glassActive ? .28 : 1);
+text(String(day),10,137+progressDateOffsetY,65,43,ink);rect(76,143+progressDateOffsetY,1,34,uiDivider,0,glassActive ? .28 : 1);
 const weekday=['星期日','星期一','星期二','星期三','星期四','星期五','星期六'][new Date(Date.UTC(year,month-1,day)).getUTCDay()];
-text(weekday,89,142+calendarOffsetY,160,15,ink,true);
-text(lunar.IMonthCn+lunar.IDayCn+' · '+lunar.gzDay+'日',89,162+calendarOffsetY,200,11,muted);
+text(weekday,89,142+progressDateOffsetY,160,15,ink,true);
+text(lunar.IMonthCn+lunar.IDayCn+' · '+lunar.gzDay+'日',89,162+progressDateOffsetY,200,11,muted);
 
 const hourLabel=cal.getStemsBranchHourAsString(date,hour)+'时';
 text(hourLabel,10,193+calendarOffsetY,40,10,luckyInk,true);
@@ -429,11 +430,12 @@ ctx.fillEllipse(new Rect(328,189+calendarOffsetY,22,22));
 text(fortune,328,193+calendarOffsetY,22,11,darkUI?(fortuneIsLucky?'#e1ebd8':'#f0b6b8'):(fortuneIsLucky?'#718b70':'#bd7371'),false,'center');
 
 // 宜忌标签与正文对齐，每项最多两行，超长内容省略。 
-rect(10,231,340,48,uiPanel,9,glassActive ? .10 : 1);
+const advicePanelY=231+calendarOffsetY;
+rect(10,advicePanelY,340,48,uiPanel,9,glassActive ? .10 : 1);
 function wrapAdvice(value,size,width){let line='',lines=[];for(const word of value.split(/\s+/)){const next=line?line+' '+word:word;if(line&&textWidth(next,size)>width){lines.push(line);line=word}else line=next}if(line)lines.push(line);return lines}
 function drawAdvice(label,value,y,color,bg,maxLines){rect(17,y,14,14,bg,3,glassActive ? .15 : 1);text(label,17,y,14,9,color,true,'center');const size=8.5;let lines=wrapAdvice(value,size,305);if(lines.length>maxLines){lines=lines.slice(0,maxLines);const words=lines[maxLines-1].split(' ');while(words.length&&textWidth(words.join(' ')+'…',size)>305)words.pop();lines[maxLines-1]=words.join(' ')+'…'}text(lines.join('\n'),38,y,305,size,glassActive?'#e3e8df':uiText2,false,'left',20)}
-drawAdvice('宜',dayAdvice.yi,235+calendarOffsetY,luckyInk,paleInk(luckyInk),2);
-drawAdvice('忌',dayAdvice.ji,257+calendarOffsetY,uiJi,uiJiBg,2);
+drawAdvice('宜',dayAdvice.yi,advicePanelY+4,luckyInk,paleInk(luckyInk),2);
+drawAdvice('忌',dayAdvice.ji,advicePanelY+26,uiJi,uiJiBg,2);
 
 // 天气底栏：日出图标＋时间 / 居中地点 / 日落图标＋时间，与预览一致。
 function drawWeatherFooter(daily,stale){
