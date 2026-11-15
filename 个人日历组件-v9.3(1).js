@@ -1,7 +1,8 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: purple; icon-glyph: magic;
-// ===== v9.3 优化版 =====
+const calendarVersion = '9.3.1';
+// ===== v9.3.1 =====
 // 0. 新增昼夜深浅自动切换：跟随系统深色外观（Device.isUsingDarkAppearance），
 //    系统切深色时组件自动换深色配色；毛玻璃背景模式保持原有逻辑不变。
 // 1. 天气新增降水概率：概率 >=30% 时在低温下方显示 💧xx%
@@ -201,7 +202,7 @@ async function removeFrostedBackground(){
  try{if(fm.fileExists(backgroundPath))fm.remove(backgroundPath);try{if(fm.fileExists(backgroundMetaPath))fm.remove(backgroundMetaPath)}catch(_){}await message('已恢复奶白背景','再次选择背景图片即可启用照片毛玻璃效果。')}catch(e){await message('背景未清除',String(e.message||e))}
 }
 
-async function settingsMenu(){while(true){const a=new Alert();a.title='个人日历';a.message=preferences.name+' · '+zodiacFor(preferences.birth).name;a.addAction('预览大号组件');a.addAction('修改名称');a.addAction('设置出生日期');a.addAction('从相册选择头像');a.addAction('恢复默认头像');a.addAction('设置 MBTI');a.addAction('选择背景图片（毛玻璃）');a.addAction('毛玻璃浓度');a.addAction('恢复奶白背景');a.addCancelAction('取消');const action=await a.presentSheet();if(action<0)return false;if(action===0)return true;
+async function settingsMenu(){while(true){const a=new Alert();a.title='个人日历 v'+calendarVersion;a.message=preferences.name+' · '+zodiacFor(preferences.birth).name;a.addAction('预览大号组件');a.addAction('修改名称');a.addAction('设置出生日期');a.addAction('从相册选择头像');a.addAction('恢复默认头像');a.addAction('设置 MBTI');a.addAction('选择背景图片（毛玻璃）');a.addAction('毛玻璃浓度');a.addAction('恢复奶白背景');a.addCancelAction('取消');const action=await a.presentSheet();if(action<0)return false;if(action===0)return true;
  if(action===1){const n=new Alert();n.title='显示名称';n.message='建议2—8个字';n.addTextField('名称',preferences.name);n.addAction('保存');n.addCancelAction('取消');if(await n.presentAlert()===0){const value=String(n.textFieldValue(0)??'').trim();if(!value||Array.from(value).length>12)await message('名称未保存','请输入1—12个字');else{try{savePreferences({...preferences,name:value})}catch(e){await message('名称未保存',String(e.message||e))}}}}
 
  if(action===2){
