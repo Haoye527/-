@@ -452,6 +452,9 @@ function calendarSettingsHTML(){
  '</script></html>';
 }
 
-if(config.runsInWidget)Script.setWidget(await buildCalendarWidget());
+if(config.runsInWidget){
+ const widget=await buildCalendarWidget();
+ Script.setWidget(widget);
+}
 else await presentCalendarSettings();
 Script.complete();
