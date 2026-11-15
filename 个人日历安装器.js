@@ -6,6 +6,7 @@ const scriptName = '个人日历组件-v9.3(1)';
 const fileName = scriptName + '.js';
 const remoteFile = encodeURIComponent(fileName).replaceAll('(', '%28').replaceAll(')', '%29');
 const url = 'https://raw.githubusercontent.com/Haoye527/-/main/' + remoteFile;
+const apiUrl = 'https://api.github.com/repos/Haoye527/-/contents/' + remoteFile + '?ref=main';
 
 const local = FileManager.local();
 let manager = local;
@@ -35,16 +36,34 @@ function installedVersion() {
 }
 
 async function fetchCalendar() {
-  const request = new Request(url + '?t=' + Date.now());
-  request.timeoutInterval = 20;
-  const code = await request.loadString();
-  const status = request.response?.statusCode;
-  if (status !== 200 || !code.trimStart().startsWith('// Variables used by Scriptable.') ||
-      !code.includes('Script.setWidget(widget)')) {
-    throw new Error('GitHub 返回的内容不是预期的日历脚本（HTTP ' + (status ?? '未知') + '）');
+  let lastError;
+  for (const [address, fromApi] of [[apiUrl, true], [url, false]]) {
+    try {
+      const request = new Request(address);
+      request.timeoutInterval = 8;
+      request.headers = { 'Cache-Control': 'no-cache' };
+      const body = await request.loadString();
+      const status = request.response?.statusCode;
+      if (status !== 200) throw new Error('HTTP ' + (status ?? '未知'));
+      const code = fromApi ? decodeGitHubFile(body) : body;
+      if (!code?.trimStart().startsWith('// Variables used by Scriptable.') ||
+          !versionOf(code) || !/\bScript\.setWidget\s*\(/.test(code)) {
+        throw new Error('GitHub 返回的内容不是预期的日历脚本');
+      }
+      return code;
+    } catch (error) {
+      lastError = error;
+    }
   }
+  throw new Error('无法读取 GitHub 上的组件。' + String(lastError?.message ?? lastError));
+}
 
-  return code;
+function decodeGitHubFile(body) {
+  const file = JSON.parse(body);
+  if (file.encoding !== 'base64' || typeof file.content !== 'string') {
+    throw new Error('GitHub 文件响应格式无效');
+  }
+  return Data.fromBase64String(file.content.replace(/\s+/g, '')).toRawString();
 }
 
 function compareVersions(left, right) {
